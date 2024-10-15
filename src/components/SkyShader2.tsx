@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { Sky } from 'three/examples/jsm/objects/Sky.js';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { SunIcon, MoonIcon } from '@heroicons/react/24/solid';
 
 const SkyShader2: React.FC = () => {
@@ -202,15 +202,43 @@ const SkyShader2: React.FC = () => {
 
     const isNightTime = (time: number) => {
         const dayProgress = (time % 24) / 24;
-        return dayProgress < 0.25 || dayProgress > 0.75;
+        const sunriseStart = 0.45; // ~5:17 AM
+        const sunsetEnd = 1.0; // ~7:55 PM
+        return dayProgress < sunriseStart || dayProgress > sunsetEnd;
     };
 
     const getSliderColor = (time: number) => {
-        return isNightTime(time) ? 'rgb(147, 21, 234)' : 'rgb(249, 115, 22)';
+        const dayProgress = (time % 24) / 24;
+        const sunriseStart = 0.45; // ~5:17 AM
+        const sunriseEnd = 0.50; // ~6:29 AM
+        const sunsetStart = 0.95; // ~6:43 PM
+        const sunsetEnd = 1.0; // ~7:55 PM
+
+        if (dayProgress < sunriseStart || dayProgress > sunsetEnd) {
+            // Night
+            return 'rgb(147, 21, 234)';
+        } else if (dayProgress >= sunriseStart && dayProgress < sunriseEnd) {
+            // Sunrise transition
+            const t = (dayProgress - sunriseStart) / (sunriseEnd - sunriseStart);
+            return `rgb(${147 + (249 - 147) * t}, ${21 + (115 - 21) * t}, ${234 + (22 - 234) * t})`;
+        } else if (dayProgress > sunsetStart && dayProgress <= sunsetEnd) {
+            // Sunset transition
+            const t = (dayProgress - sunsetStart) / (sunsetEnd - sunsetStart);
+            return `rgb(${249 + (147 - 249) * t}, ${115 + (21 - 115) * t}, ${22 + (234 - 22) * t})`;
+        } else {
+            // Day
+            return 'rgb(249, 115, 22)';
+        }
     };
 
     const currentTime = isDragging ? sliderValue : (progress * 24 + initialTime) % 24;
     const currentColor = getSliderColor(currentTime);
+    const isNight = isNightTime(currentTime);
+
+    const fadeVariants = {
+        hidden: { opacity: 0 },
+        visible: { opacity: 0.5 },
+    };
 
     return (
         <div ref={containerRef} className="relative w-full h-full">
@@ -223,9 +251,10 @@ const SkyShader2: React.FC = () => {
                 transition={{ duration: 0.3 }}
             >
                 <motion.div
-                    className="bg-black bg-opacity-20 rounded-full overflow-hidden flex items-center justify-center relative"
+                    className="rounded-full overflow-hidden flex items-center justify-center relative"
                     style={{
                         boxShadow: `inset 0 0 0 2px ${currentColor}`,
+                        backgroundColor: currentColor.replace('rgb', 'rgba').replace(')', ', 0.4)'),
                     }}
                     animate={{
                         width: isHovered ? '100%' : '3rem',
@@ -247,24 +276,55 @@ const SkyShader2: React.FC = () => {
                         className="w-full h-full opacity-0 absolute cursor-pointer z-10"
                     />
                     <div
-                        className="h-full absolute left-0 top-0 transition-colors duration-300"
+                        className="h-full absolute left-0 top-0"
                         style={{
                             width: `${(currentTime / 24) * 100}%`,
                             backgroundColor: currentColor,
                         }}
                     ></div>
-                    {isHovered ? (
-                        <>
-                            <SunIcon className="w-6 h-6 text-white opacity-50 absolute left-[24px] top-1/2 transform -translate-y-1/2 z-0" />
-                            <MoonIcon className="w-4 h-4 text-white opacity-50 absolute left-3/4 top-1/2 transform -translate-y-1/2 z-0" />
-                        </>
-                    ) : (
-                        isNightTime(isDragging ? sliderValue : progress * 24) ? (
-                            <MoonIcon className="w-4 h-4 text-white opacity-50" />
+                    <AnimatePresence mode="wait">
+                        {isHovered ? (
+                            <>
+                                <motion.div
+                                    key="sun"
+                                    initial="hidden"
+                                    animate="visible"
+                                    exit="hidden"
+                                    variants={fadeVariants}
+                                    transition={{ duration: 0.3 }}
+                                    className="absolute left-[24px] top-1/2 transform -translate-y-1/2 z-0"
+                                >
+                                    <SunIcon className="w-6 h-6 text-white" />
+                                </motion.div>
+                                <motion.div
+                                    key="moon"
+                                    initial="hidden"
+                                    animate="visible"
+                                    exit="hidden"
+                                    variants={fadeVariants}
+                                    transition={{ duration: 0.3 }}
+                                    className="absolute left-3/4 top-1/2 transform -translate-y-1/2 z-0"
+                                >
+                                    <MoonIcon className="w-4 h-4 text-white" />
+                                </motion.div>
+                            </>
                         ) : (
-                            <SunIcon className="w-6 h-6 text-white opacity-50" />
-                        )
-                    )}
+                            <motion.div
+                                key={isNight ? "night" : "day"}
+                                initial="hidden"
+                                animate="visible"
+                                exit="hidden"
+                                variants={fadeVariants}
+                                transition={{ duration: 0.3 }}
+                            >
+                                {isNight ? (
+                                    <MoonIcon className="w-4 h-4 text-white mix-blend-lighten" />
+                                ) : (
+                                    <SunIcon className="w-6 h-6 text-white mix-blend-lighten" />
+                                )}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </motion.div>
             </motion.div>
         </div>

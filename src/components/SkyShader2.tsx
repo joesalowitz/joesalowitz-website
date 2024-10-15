@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { Sky } from 'three/examples/jsm/objects/Sky.js';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { SunIcon, MoonIcon } from '@heroicons/react/24/solid';
 
 const SkyShader2: React.FC = () => {
@@ -235,11 +235,6 @@ const SkyShader2: React.FC = () => {
     const currentColor = getSliderColor(currentTime);
     const isNight = isNightTime(currentTime);
 
-    const fadeVariants = {
-        hidden: { opacity: 0 },
-        visible: { opacity: 0.5 },
-    };
-
     return (
         <div ref={containerRef} className="relative w-full h-full">
             <motion.div
@@ -282,51 +277,24 @@ const SkyShader2: React.FC = () => {
                             backgroundColor: currentColor,
                         }}
                     ></div>
-                    <AnimatePresence mode="wait">
-                        {isHovered ? (
-                            <>
-                                <motion.div
-                                    key="sun"
-                                    initial="hidden"
-                                    animate="visible"
-                                    exit="hidden"
-                                    variants={fadeVariants}
-                                    transition={{ duration: 0.3 }}
-                                    className="absolute left-[24px] top-1/2 transform -translate-y-1/2 z-0"
-                                >
-                                    <SunIcon className="w-6 h-6 text-white" />
-                                </motion.div>
-                                <motion.div
-                                    key="moon"
-                                    initial="hidden"
-                                    animate="visible"
-                                    exit="hidden"
-                                    variants={fadeVariants}
-                                    transition={{ duration: 0.3 }}
-                                    className="absolute left-3/4 top-1/2 transform -translate-y-1/2 z-0"
-                                >
-                                    <MoonIcon className="w-4 h-4 text-white" />
-                                </motion.div>
-                            </>
+                    {isHovered ? (
+                        <>
+                            <SunIcon className="w-6 h-6 text-white opacity-50 absolute left-[24px] top-1/2 transform -translate-y-1/2 z-0" />
+                            <MoonIcon className="w-4 h-4 text-white opacity-50 absolute left-3/4 top-1/2 transform -translate-y-1/2 z-0" />
+                        </>
+                    ) : (
+                        isNight ? (
+                            <MoonIcon className="w-4 h-4 text-white opacity-50 mix-blend-lighten" />
                         ) : (
-                            <motion.div
-                                key={isNight ? "night" : "day"}
-                                initial="hidden"
-                                animate="visible"
-                                exit="hidden"
-                                variants={fadeVariants}
-                                transition={{ duration: 0.3 }}
-                            >
-                                {isNight ? (
-                                    <MoonIcon className="w-4 h-4 text-white mix-blend-lighten" />
-                                ) : (
-                                    <SunIcon className="w-6 h-6 text-white mix-blend-lighten" />
-                                )}
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+                            <SunIcon className="w-6 h-6 text-white opacity-50 mix-blend-lighten" />
+                        )
+                    )}
                 </motion.div>
             </motion.div>
+            <div className="noise absolute top-0 left-0 w-full h-full pointer-events-none"></div>
+            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 text-amber-100 text-xs font-light opacity-80 mix-blend-difference lora-font">
+                Created with Cursor.AI and Three.JS by Joe
+            </div>
         </div>
     );
 };

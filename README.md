@@ -1,92 +1,210 @@
-# Dante - Astro & Tailwind CSS Theme by justgoodui.com
+# Astro + Aceternity
 
-Dante is a single-author blog and portfolio theme for Astro.js. Featuring a minimal, slick, responsive and content-focused design. For more Astro.js themes please check [justgoodui.com](https://justgoodui.com/).
+I really like to use Aceternity Ui in Nextjs but sometime, I don't really need Nextjs to develop a project. About half of my new projects are done in Astro SSG. So, I thought, why not use Aceternity Ui in Astro.
 
-![Dante Astro.js Theme](public/dante-preview.jpg)
+## Reference
 
-[![Deploy to Netlify Button](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/JustGoodUI/dante-astro-theme)
+https://docs.astro.build/en/install-and-setup
 
-If you click this☝️ button, it will create a new repo for you that looks exactly like this one, and sets that repo up immediately for deployment on Netlify.
+https://www.framer.com/motion/introduction
 
-## Theme Features:
+https://ui.shadcn.com/docs/installation/astro
 
-- ✅ Dark and light color mode
-- ✅ Hero section with bio
-- ✅ Portfolio collection
-- ✅ Pagination support
-- ✅ Post tags support
-- ✅ Subscription form
-- ✅ View transitions
-- ✅ Tailwind CSS
-- ✅ Mobile-first responsive layout
-- ✅ SEO-friendly with canonical URLs and OpenGraph data
-- ✅ Sitemap support
-- ✅ RSS Feed support
-- ✅ Markdown & MDX support
+https://ui.aceternity.com/docs/add-utilities
 
-## Template Integrations
+## Installation
 
-- @astrojs/tailwind - https://docs.astro.build/en/guides/integrations-guide/tailwind/
-- @astrojs/sitemap - https://docs.astro.build/en/guides/integrations-guide/sitemap/
-- @astrojs/mdx - https://docs.astro.build/en/guides/markdown-content/
-- @astrojs/rss - https://docs.astro.build/en/guides/rss/
+I use [Bun](https://bun.sh/) here but you can use npm or npx.
+
+### 1. Creating Astro Project
+
+```sh
+bun create astro@latest
+```
+
+```text
+
+dir   Where should we create your new project?
+         ./project-name
+
+tmpl   How would you like to start your new project?
+         Empty
+
+ts   Do you plan to write TypeScript?
+         Yes
+
+use   How strict should TypeScript be?
+         Strict
+
+deps   Install dependencies?
+         Yes
+
+git   Initialize a new git repository?
+         No
+
+```
+
+```sh
+cd project-name
+```
+
+### 2. Add React
+
+```sh
+bunx astro add react
+```
+
+Answer `Yes` to all the questions.
+
+### 3. Add Tailwind
+
+```sh
+bunx astro add tailwind
+```
+
+Answer `Yes` to all the questions.
+
+Add the following code to the tsconfig.json file to resolve paths:
+
+```text
+{
+  "compilerOptions": {
+    // ...
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
+    // ...
+  }
+}
+```
+Import the `globals.css` file in the `@/pages/index.astro` file:
+
+```text
+---
+import '@/styles/globals.css'
+---
+```
+
+Update `astro.config.mjs` :
+
+```text
+export default defineConfig({
+  integrations: [
+    //your code,
+    tailwind({
+      applyBaseStyles: false,
+    }),
+  ],
+})
+```
+
+Update `tailwind.config.mjs` :
+
+```text
+export default {
+//your code,
+  content: ["./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}"],
+}
+
+```
+### 4. Install Shardcn Ui
+
+```sh
+bunx shadcn@latest init
+```
+There is still no error after running this command with bun but if you are using npm, there may be an error like this. ([#issue](https://github.com/Tokigin/astro-aceternity/issues/2))
+
+![shardcn-error](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/r3kgq1zefc4rva5i1u44.png)
+
+To fix this error, you have to create a folder named "npm" in "AppData\Roaming". 
+There are two ways to create the folder. 
+- Open PowerShell and enter `New-Item -Path "$env:APPDATA\npm" -ItemType Directory`.
+- Open Run command window, enter `%appdata%` and create a folder named "npm".
+
+After that, you can continue the process below. 
+```text
+√ Would you like to use TypeScript (recommended)? ... yes
+√ Which style would you like to use? » Default
+√ Which color would you like to use as base color? » Slate
+√ Where is your global CSS file? ... ./src/styles/globals.css
+√ Would you like to use CSS variables for colors? ... no
+√ Are you using a custom tailwind prefix eg. tw-? (Leave blank if not) ...
+√ Where is your tailwind.config.js located? ... tailwind.config.mjs
+√ Configure the import alias for components: ... @/components
+√ Configure the import alias for utils: ... @/lib/utils
+√ Are you using React Server Components? ... no
+√ Write configuration to components.json. Proceed? ... yes
+```
+
+### 5. Install Framer Motion
+
+```sh
+bun i framer-motion clsx tailwind-merge
+```
+
+### 6. Add Aceternity Ui component
+
+```sh
+bunx aceternity-ui@latest add 3d-card
+```
+
+Remove `"use client";` as it is from `Nextjs`. We are using `Astro` so we don't need Nextjs Syntax.
+
+Remove `import Image from "next/image";` and use normal `<img>` tag.
+
+or
+
+Replace it with `import { Image } from 'astro:assets';`.
+
+### 7. Using Aceternity Ui component
+
+Create `threedcarddemo.tsx` in `"@/components/"`.
+
+Copy and Paste the code from https://ui.aceternity.com/components/3d-card-effect example.
+
+Remove :
+
+```text
+"use client";
+import Image from "next/image";
+import React from "react";
+```
+
+Import component in the `@/pages/index.astro` file:
+
+```text
+---
+import { ThreeDCardDemo } from "@/components/threedcarddemo";
+---
+```
+
+You can use `client:idle` or `client:load` as you like.
+
+```text
+<ThreeDCardDemo client:idle />
+```
 
 ## Project Structure
 
-Inside of Dante Astro theme, you'll see the following folders and files:
-
 ```text
+/
 ├── public/
 ├── src/
-│   ├── components/
-│   ├── content/
-│   ├── data/
-│   ├── icons/
-│   ├── layouts/
-│   ├── pages/
-│   ├── styles/
-│   └── utils/
-├── astro.config.mjs
-├── package.json
-├── README.md
-├── tailwind.config.cjs
+│   └── components/
+│       └── ui
+│   └── lib/
+│       └── utils.ts
+│   └── pages/
+│       └── index.astro
+│   └── styles/
+│       └── globals.css
+│   └── env.d.ts
+└── astro.config.mjs
+└── components.json
+└── package.json
+└── tailwind.config.mjs
 └── tsconfig.json
 ```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro (`.astro`) components.
-
-The `src/content/` directory contains "collections" of related Markdown and MDX documents. Use `getCollection()` to retrieve posts from `src/content/blog/`, and type-check your frontmatter using an optional schema. See [Astro's Content Collections docs](https://docs.astro.build/en/guides/content-collections/) to learn more.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## Astro.js Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## Want to learn more about Astro.js?
-
-Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
-
-## Credits
-
-- Demo content generate with [Chat GPT](https://chat.openai.com/)
-- Images for demo content from [Unsplash](https://unsplash.com/)
-
-## Astro Themes by Just Good UI
-
-- [Ovidius](https://github.com/JustGoodUI/ovidius-astro-theme) is a free single author blog theme.
-
-## License
-
-Licensed under the [GPL-3.0](https://github.com/JustGoodUI/dante-astro-theme/blob/main/LICENSE) license.

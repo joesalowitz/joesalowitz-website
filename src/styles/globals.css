@@ -76,9 +76,12 @@
     .noise {
         background-image: url('../public/noise.svg');
         background-size: 30%;
-        opacity: 0.2;
+        opacity: 0.5;
         background-repeat: repeat;
-        filter: blur(10px);
+        filter: blur(4px);
+    }
+    .background-gradient {
+        background: linear-gradient(to bottom right, rgba(0,0,0,.8) 0%, rgba(0,0,0,0.2) 50%), linear-gradient(to bottom left, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 50%);
     }
   }
 }

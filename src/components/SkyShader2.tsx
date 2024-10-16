@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { Sky } from 'three/examples/jsm/objects/Sky.js';
-import { motion, useMotionValue, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { SunIcon, MoonIcon } from '@heroicons/react/24/solid';
 
 const SkyShader2: React.FC = () => {
@@ -17,8 +17,6 @@ const SkyShader2: React.FC = () => {
     const clockRef = useRef(new THREE.Clock());
     const [sliderValue, setSliderValue] = useState(0);
     const [initialTime] = useState(5.9); // Just before dawn (6:00 AM)
-    const sliderX = useMotionValue(0);
-    const sliderProgress = useTransform(sliderX, [-150, 150], [0, 24]);
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -218,18 +216,18 @@ const SkyShader2: React.FC = () => {
 
         if (dayProgress < sunriseStart || dayProgress > sunsetEnd) {
             // Night
-            return 'rgb(147, 21, 234)';
+            return 'rgb(147, 21, 234)'; // Keep the night color as is
         } else if (dayProgress >= sunriseStart && dayProgress < sunriseEnd) {
             // Sunrise transition
             const t = (dayProgress - sunriseStart) / (sunriseEnd - sunriseStart);
-            return `rgb(${147 + (249 - 147) * t}, ${21 + (115 - 21) * t}, ${234 + (22 - 234) * t})`;
+            return `rgb(${147 + (245 - 147) * t}, ${21 + (158 - 21) * t}, ${234 + (11 - 234) * t})`;
         } else if (dayProgress > sunsetStart && dayProgress <= sunsetEnd) {
             // Sunset transition
             const t = (dayProgress - sunsetStart) / (sunsetEnd - sunsetStart);
-            return `rgb(${249 + (147 - 249) * t}, ${115 + (21 - 115) * t}, ${22 + (234 - 22) * t})`;
+            return `rgb(${245 + (147 - 245) * t}, ${158 + (21 - 158) * t}, ${11 + (234 - 11) * t})`;
         } else {
-            // Day
-            return 'rgb(249, 115, 22)';
+            // Day - using Tailwind amber-500
+            return 'rgb(245, 148, 11)';
         }
     };
 
@@ -239,10 +237,15 @@ const SkyShader2: React.FC = () => {
 
     return (
         <div ref={containerRef} className="relative w-full h-full">
+            {/* Add the shadow overlay */}
+            <div className="absolute inset-0 pointer-events-none z-10" style={{
+                background: 'linear-gradient(to bottom right, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 50%), linear-gradient(to bottom left, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 50%)'
+            }}></div>
+
             <motion.div
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center"
-                initial={{ width: '3rem', height: '3rem' }}
-                animate={{ width: isHovered ? '12rem' : '3rem' }}
+                className="absolute bottom-4 right-4 flex items-center justify-center z-20"
+                initial={{ width: '2rem', height: '2rem' }}
+                animate={{ width: isHovered ? '12rem' : '2rem' }}
                 onHoverStart={() => setIsHovered(true)}
                 onHoverEnd={() => setIsHovered(false)}
                 transition={{ duration: 0.3 }}
@@ -250,25 +253,27 @@ const SkyShader2: React.FC = () => {
                 <motion.div
                     className="rounded-full overflow-hidden flex items-center justify-center relative"
                     style={{
-                        boxShadow: `inset 0 0 0 2px ${currentColor}`,
+                        boxShadow: `inset 0 0 0 0px ${currentColor}`,
                         backgroundColor: currentColor.replace('rgb', 'rgba').replace(')', ', 0.4)'),
                     }}
                     animate={{
-                        width: isHovered ? '100%' : '3rem',
-                        height: '3rem',
+                        width: isHovered ? '100%' : '2rem',
+                        height: '2rem',
                     }}
                     transition={{ duration: 0.3 }}
                 >
-                    <motion.div
-                        drag="x"
-                        dragConstraints={{ left: -150, right: 150 }}
-                        dragElastic={0}
-                        dragMomentum={false}
-                        style={{ x: sliderX }}
-                        onDrag={handleSliderDrag}
-                        onDragStart={handleDragStart}
-                        onDragEnd={handleDragEnd}
-                        className="w-full h-full absolute cursor-pointer z-10"
+                    <input
+                        type="range"
+                        min="0"
+                        max="24"
+                        step="0.1"
+                        value={currentTime}
+                        onChange={handleTimeChange}
+                        onMouseDown={handleDragStart}
+                        onMouseUp={handleDragEnd}
+                        onTouchStart={handleDragStart}
+                        onTouchEnd={handleDragEnd}
+                        className="w-full h-full opacity-0 absolute cursor-pointer z-10"
                     />
                     <div
                         className="h-full absolute left-0 top-0"
@@ -291,8 +296,8 @@ const SkyShader2: React.FC = () => {
                     )}
                 </motion.div>
             </motion.div>
-            <div className="noise absolute top-0 left-0 w-full h-full pointer-events-none"></div>
-            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 text-amber-100 text-xs font-light opacity-80 mix-blend-difference lora-font">
+            <div className="noise background-gradient absolute top-0 left-0 w-full h-full pointer-events-none"></div>
+            <div className="absolute bottom-4 left-4 transform text-[#F5E6D3] text-xs text-left font-light opacity-80 mix-blend-difference lora-font z-20">
                 Created with Cursor.AI and Three.JS by Joe
             </div>
         </div>

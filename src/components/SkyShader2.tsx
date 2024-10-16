@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { Sky } from 'three/examples/jsm/objects/Sky.js';
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { SunIcon, MoonIcon } from '@heroicons/react/24/solid';
 
 const SkyShader2: React.FC = () => {
@@ -17,6 +17,8 @@ const SkyShader2: React.FC = () => {
     const clockRef = useRef(new THREE.Clock());
     const [sliderValue, setSliderValue] = useState(0);
     const [initialTime] = useState(5.9); // Just before dawn (6:00 AM)
+    const sliderX = useMotionValue(0);
+    const sliderProgress = useTransform(sliderX, [-150, 150], [0, 24]);
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -257,18 +259,16 @@ const SkyShader2: React.FC = () => {
                     }}
                     transition={{ duration: 0.3 }}
                 >
-                    <input
-                        type="range"
-                        min="0"
-                        max="24"
-                        step="0.1"
-                        value={currentTime}
-                        onChange={handleTimeChange}
-                        onMouseDown={handleDragStart}
-                        onMouseUp={handleDragEnd}
-                        onTouchStart={handleDragStart}
-                        onTouchEnd={handleDragEnd}
-                        className="w-full h-full opacity-0 absolute cursor-pointer z-10"
+                    <motion.div
+                        drag="x"
+                        dragConstraints={{ left: -150, right: 150 }}
+                        dragElastic={0}
+                        dragMomentum={false}
+                        style={{ x: sliderX }}
+                        onDrag={handleSliderDrag}
+                        onDragStart={handleDragStart}
+                        onDragEnd={handleDragEnd}
+                        className="w-full h-full absolute cursor-pointer z-10"
                     />
                     <div
                         className="h-full absolute left-0 top-0"

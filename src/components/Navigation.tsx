@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import ButtonShimmer from '@/components/ui/button-shimmer';
+import { CopyEmailButton } from './CopyEmailButton';
 
 const Navigation: React.FC = () => {
     const menuItems = ['Work', 'Coaching & Speaking', 'Writing'];
@@ -30,9 +31,7 @@ const Navigation: React.FC = () => {
                         </li>
                     ))}
                     <li>
-                        <ButtonShimmer>
-                            HI@JOESALOWITZ.COM
-                        </ButtonShimmer>
+                        <CopyEmailButton />
                     </li>
                 </ul>
             </motion.div>

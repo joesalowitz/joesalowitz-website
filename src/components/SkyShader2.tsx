@@ -23,12 +23,12 @@ const SkyShader2: React.FC = () => {
 
         const scene = new THREE.Scene();
         sceneRef.current = scene;
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const camera = new THREE.PerspectiveCamera(75, containerRef.current.clientWidth / containerRef.current.clientHeight, 0.1, 1000);
         cameraRef.current = camera;
         const renderer = new THREE.WebGLRenderer();
         rendererRef.current = renderer;
 
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
         containerRef.current.appendChild(renderer.domElement);
 
         // Sky
@@ -172,9 +172,11 @@ const SkyShader2: React.FC = () => {
         animate();
 
         const handleResize = () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            if (containerRef.current) {
+                camera.aspect = containerRef.current.clientWidth / containerRef.current.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
+            }
         };
 
         window.addEventListener('resize', handleResize);
